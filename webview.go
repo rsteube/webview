@@ -95,6 +95,11 @@ static inline void _webview_dispatch_cb(struct webview *w, void *arg) {
 static inline void CgoWebViewDispatch(void *w, uintptr_t arg) {
 	webview_dispatch((struct webview *)w, _webview_dispatch_cb, (void *)arg);
 }
+
+static inline void CgoWebViewGetCookie(void *w, void * arg, char * uri) {
+	webview_getcookie((struct webview *)w, (void *)arg, (char *)uri);
+}
+
 */
 import "C"
 import (
@@ -102,6 +107,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mattn/go-pointer"
 	"html/template"
 	"log"
 	"reflect"
@@ -221,6 +227,7 @@ type WebView interface {
 	// Exit() closes the window and cleans up the resources. Use Terminate() to
 	// forcefully break out of the main UI loop.
 	Exit()
+	GetCookie(uri string, callback func(string))
 	// Bind() registers a binding between a given value and a JavaScript object with the
 	// given name.  A value must be a struct or a struct pointer. All methods are
 	// available under their camel-case names, starting with a lower-case letter,
@@ -326,6 +333,16 @@ func (w *webview) Dispatch(f func()) {
 	fns[index] = f
 	m.Unlock()
 	C.CgoWebViewDispatch(w.w, C.uintptr_t(index))
+}
+
+func (w *webview) GetCookie(uri string, callback func(string)) {
+	C.CgoWebViewGetCookie(w.w, pointer.Save(callback), C.CString(uri))
+}
+
+//export _getcookie_proxy
+func _getcookie_proxy(index unsafe.Pointer, arg *C.char) {
+	cb := pointer.Restore(index).(func(string))
+	cb(C.GoString(arg))
 }
 
 func (w *webview) SetTitle(title string) {

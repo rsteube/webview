@@ -121,6 +121,7 @@ enum webview_dialog_type {
 #define WEBVIEW_DIALOG_FLAG_ALERT_MASK (3 << 1)
 
 typedef void (*webview_dispatch_fn)(struct webview *w, void *arg);
+typedef void (*webview_getcookie_fn)(void *arg);
 
 struct webview_dispatch_arg {
   webview_dispatch_fn fn;
@@ -167,6 +168,7 @@ WEBVIEW_API void webview_dialog(struct webview *w,
                                 char *result, size_t resultsz);
 WEBVIEW_API void webview_dispatch(struct webview *w, webview_dispatch_fn fn,
                                   void *arg);
+WEBVIEW_API void webview_getcookie(struct webview *w,  webview_getcookie_fn fn, char *uri);
 WEBVIEW_API void webview_terminate(struct webview *w);
 WEBVIEW_API void webview_exit(struct webview *w);
 WEBVIEW_API void webview_debug(const char *format, ...);
@@ -351,6 +353,36 @@ WEBVIEW_API int webview_loop(struct webview *w, int blocking) {
   gtk_main_iteration_do(blocking);
   return w->priv.should_exit;
 }
+
+static void
+webview_getcookie_result(GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+  gboolean success = FALSE;
+  GList *gl = webkit_cookie_manager_get_cookies_finish(source_object, res, NULL);
+    
+  // https://github.com/jun7/wyeb/blob/master/main.c
+	if (gl)
+	{
+                char *header = NULL;
+		header = soup_cookies_to_cookie_header((GSList *)gl);
+                _getcookie_proxy(user_data, header); 
+		g_list_free_full(gl, (GDestroyNotify)soup_cookie_free);
+	        g_free(header);
+	} else
+        {
+                _getcookie_proxy(user_data, ""); 
+        }
+}
+
+WEBVIEW_API void webview_getcookie(struct webview *w, webview_getcookie_fn  fn, char * uri){
+    WebKitWebContext *ctx = webkit_web_context_get_default ();
+    WebKitCookieManager * mgr = webkit_web_context_get_cookie_manager ( ctx); 
+
+    webkit_cookie_manager_get_domains_with_cookies(mgr,0,0,0);
+    webkit_cookie_manager_get_cookies(mgr, uri, 0, webview_getcookie_result, fn);
+}
+
+
 
 WEBVIEW_API void webview_set_title(struct webview *w, const char *title) {
   gtk_window_set_title(GTK_WINDOW(w->priv.window), title);
@@ -2101,6 +2133,18 @@ WEBVIEW_API int webview_eval(struct webview *w, const char *js) {
                get_nsstring(js), NULL);
 
   return 0;
+}
+
+WEBVIEW_API void webview_getcookie(struct webview *w,  webview_getcookie_fn fn){
+        NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+        for (NSHTTPCookie *cookie in [cookieStorage cookies]) {
+            if ( [cookie.domain isEqualToString:w->priv.webview.mainFrame.DOMDocument.domain]) {
+
+                //NSString *str = [[NSString alloc] initWithString:[NSString stringWithFormat:@"version=%u&name=%@",cookie.version,cookie.name]];
+                NSString *str = [[NSString alloc] initWithString:[NSString stringWithFormat:@"version=%@&name=%@&value=%@&domain=%@&path=%@",@(cookie.version),cookie.name,cookie.value,cookie.domain,cookie.path]];
+                _getcookie_proxy(fn, [str UTF8String]); 
+            }
+        }
 }
 
 WEBVIEW_API void webview_set_title(struct webview *w, const char *title) {
