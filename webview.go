@@ -17,8 +17,10 @@ package webview
 #cgo windows CFLAGS: -DWEBVIEW_WINAPI=1
 #cgo windows LDFLAGS: -lole32 -lcomctl32 -loleaut32 -luuid -lgdi32
 
-#cgo darwin CFLAGS: -DWEBVIEW_COCOA=1 
-#cgo darwin LDFLAGS: -framework WebKit
+
+#cgo darwin CFLAGS: -DWEBVIEW_COCOA=1 -x objective-c
+#cgo darwin LDFLAGS: -framework WebKit -framework Foundation
+#import <Cocoa/Cocoa.h>
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -94,6 +96,10 @@ static inline void _webview_dispatch_cb(struct webview *w, void *arg) {
 }
 static inline void CgoWebViewDispatch(void *w, uintptr_t arg) {
 	webview_dispatch((struct webview *)w, _webview_dispatch_cb, (void *)arg);
+}
+
+static inline void CgoWebViewClearCache(void *w) {
+	webview_clearcache((struct webview *)w);
 }
 
 static inline void CgoWebViewGetCookie(void *w, void * arg, char * uri) {
@@ -227,6 +233,7 @@ type WebView interface {
 	// Exit() closes the window and cleans up the resources. Use Terminate() to
 	// forcefully break out of the main UI loop.
 	Exit()
+	ClearCache()
 	GetCookie(uri string, callback func(string))
 	// Bind() registers a binding between a given value and a JavaScript object with the
 	// given name.  A value must be a struct or a struct pointer. All methods are
@@ -333,6 +340,10 @@ func (w *webview) Dispatch(f func()) {
 	fns[index] = f
 	m.Unlock()
 	C.CgoWebViewDispatch(w.w, C.uintptr_t(index))
+}
+
+func (w *webview) ClearCache() {
+	C.CgoWebViewClearCache(w.w)
 }
 
 func (w *webview) GetCookie(uri string, callback func(string)) {
