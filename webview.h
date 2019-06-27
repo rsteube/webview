@@ -404,7 +404,7 @@ struct webview_priv
   }
 
   static void
-  webview_getcookie_result(GObject *source_object, GAsyncResult *res, gpointer user_data)
+  webview_getcookie_result(WebKitCookieManager *source_object, GAsyncResult *res, gpointer user_data)
   {
     gboolean success = FALSE;
     GList *gl = webkit_cookie_manager_get_cookies_finish(source_object, res, NULL);
@@ -427,10 +427,9 @@ struct webview_priv
   WEBVIEW_API void webview_getcookie(struct webview *w, webview_getcookie_fn fn, char *uri)
   {
     WebKitWebContext *ctx = webkit_web_context_get_default();
-    WebKitCookieManager *mgr = webkit_web_context_get_cookie_manager(ctx);
-
-    webkit_cookie_manager_get_domains_with_cookies(mgr, 0, 0, 0);
-    webkit_cookie_manager_get_cookies(mgr, uri, 0, webview_getcookie_result, fn);
+    WebKitWebsiteDataManager *mgr = webkit_web_context_get_website_data_manager(ctx);
+    WebKitCookieManager *cmgr = webkit_website_data_manager_get_cookie_manager(mgr);
+    webkit_cookie_manager_get_cookies(cmgr, uri, 0, (GAsyncReadyCallback)webview_getcookie_result, fn);
   }
 
   WEBVIEW_API void webview_set_title(struct webview *w, const char *title)
