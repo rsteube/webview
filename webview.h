@@ -283,13 +283,9 @@ struct webview_priv
       return;
     }
     JSGlobalContextRef context = webkit_javascript_result_get_global_context(r);
-    JSValueRef value = webkit_javascript_result_get_value(r);
-    JSStringRef js = JSValueToStringCopy(context, value, NULL);
-    size_t n = JSStringGetMaximumUTF8CStringSize(js);
-    char *s = g_new(char, n);
-    JSStringGetUTF8CString(js, s, n);
+    JSCValue *value = webkit_javascript_result_get_js_value(r);
+    char *s = jsc_value_to_string(value);
     w->external_invoke_cb(w, s);
-    JSStringRelease(js);
     g_free(s);
   }
 
