@@ -282,7 +282,6 @@ struct webview_priv
     {
       return;
     }
-    JSGlobalContextRef context = webkit_javascript_result_get_global_context(r);
     JSCValue *value = webkit_javascript_result_get_js_value(r);
     char *s = jsc_value_to_string(value);
     w->external_invoke_cb(w, s);
