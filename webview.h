@@ -2477,6 +2477,8 @@ struct webview_priv
       domain = [domain substringFromIndex:8];
     if ([domain hasPrefix:@"http://"])
       domain = [domain substringFromIndex:7];
+    if ([domain hasPrefix:@"www."])
+      domain = [domain substringFromIndex:4];
     domain = [NSString stringWithFormat:@".%@", domain];
 
     for (NSHTTPCookie *cookie in [cookieStorage cookies])
@@ -2658,9 +2660,6 @@ struct webview_priv
   {
     [w->priv.webview.window close];
     webview_loop(w, true);
-    //id app = objc_msgSend((id)objc_getClass("NSApplication"),
-    //                      sel_registerName("sharedApplication"));
-    //objc_msgSend(app, sel_registerName("terminate:"), app);
   }
 
   WEBVIEW_API void webview_print_log(const char *s) { printf("%s\n", s); }
