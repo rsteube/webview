@@ -65,6 +65,7 @@ extern "C"
 #include <exdisp.h>
 #include <mshtmhst.h>
 #include <mshtml.h>
+#include <wininet.h>
 #include <shobjidl.h>
 
 #include <stdio.h>
@@ -1699,6 +1700,29 @@ struct webview_priv
                                     void *arg)
   {
     PostMessageW(w->priv.hwnd, WM_WEBVIEW_DISPATCH, (WPARAM)fn, (LPARAM)arg);
+  }
+
+  static void
+  webview_clearcache(struct webview *w)
+  {
+    //https://stackoverflow.com/a/7204440
+    //int success = InternetSetOption(0, 42, NULL, 0);
+    const int INTERNET_COOKIE_HTTPONLY = 0x00002000;
+    InternetSetCookieExA("https://myuri.com", "_oauth2_proxy", ";expires=Mon, 01 Jan 0001 00:00:00 GMT", INTERNET_COOKIE_HTTPONLY, 0);
+  }
+
+  WEBVIEW_API void webview_getcookie(struct webview *w, webview_getcookie_fn fn, char *uri)
+  {
+    const int INTERNET_COOKIE_HTTPONLY = 0x00002000;
+    DWORD size = 0;
+
+    if (InternetGetCookieExA(uri, 1, 0, &size, INTERNET_COOKIE_HTTPONLY, 0))
+    {
+      char data[size + 1];
+      int success2 = InternetGetCookieExA(uri, 0, data, &size, INTERNET_COOKIE_HTTPONLY, 0);
+
+      _getcookie_proxy((void *)fn, (char *)data);
+    }
   }
 
   WEBVIEW_API void webview_set_title(struct webview *w, const char *title)
