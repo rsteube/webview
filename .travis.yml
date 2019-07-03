@@ -3,6 +3,9 @@ language: go
 go: 
  - 1.11.x
 
+env:
+  - GO111MODULE=on
+
 matrix:
   include:
     - os: linux
@@ -16,7 +19,7 @@ matrix:
 script:
   - cd examples/minimal && mkdir -p build && cd build && cmake .. && make && ls -l && cd ../../..
   - cd examples/timer-cxx && mkdir -p build && cd build && cmake .. && make && ls -l && cd ../../..
-  - cd examples/minimal-go && env GO111MODULE=on go build && ls -l && cd ../..
-  - cd examples/todo-go && env GO111MODULE=on go build && ls -l && cd ../..
-  - cd examples/page-load-go && env GO111MODULE=on go build && ls -l && cd ../..
-  - cd examples/window-go && env GO111MODULE=on go build && ls -l && cd ../..
+  - cd examples/minimal-go && go build && ls -l && cd ../..
+  - cd examples/todo-go && go build && ls -l && cd ../..
+  - cd examples/page-load-go && go build && ls -l && cd ../..
+  - cd examples/window-go && go build && ls -l && cd ../..
