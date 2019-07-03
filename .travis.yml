@@ -11,7 +11,7 @@ matrix:
         - sudo apt-get update
         - sudo apt-get install libwebkit2gtk-4.0-dev -y
     - os: osx
-      osx_image: xcode8.3
+      osx_image: xcode10.2
 
 script:
   - cd examples/minimal && mkdir -p build && cd build && cmake .. && make && ls -l && cd ../../..
