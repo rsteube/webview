@@ -9,9 +9,9 @@ env:
 matrix:
   include:
     - os: linux
-      dist: xenial
+      #dist: xenial
       before_install:
-        #- sudo add-apt-repository ppa:webkit-team/ppa -y
+        - sudo add-apt-repository ppa:webkit-team/ppa -y
         - sudo apt-get update
         - sudo apt-get install libwebkit2gtk-4.0-dev -y
     - os: osx
