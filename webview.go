@@ -19,7 +19,7 @@ package webview
 
 
 #cgo darwin CFLAGS: -DWEBVIEW_COCOA=1 -x objective-c
-#cgo darwin LDFLAGS: -framework WebKit -framework Foundation -framework UIKit
+#cgo darwin LDFLAGS: -framework WebKit -framework Foundation
 
 #include <stdlib.h>
 #include <stdint.h>
