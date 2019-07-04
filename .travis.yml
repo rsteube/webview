@@ -16,7 +16,7 @@ matrix:
         - sudo apt-get update
         - sudo apt-get install -y libwebkit2gtk-4.0-dev=2.20.1-1 libwebkit2gtk-4.0-37=2.20.1-1 gir1.2-webkit2-4.0=2.20.1-1 libjavascriptcoregtk-4.0-dev=2.20.1-1 gir1.2-javascriptcoregtk-4.0=2.20.1-1 libjavascriptcoregtk-4.0-18=2.20.1-1
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode10.2
 
 script:
   - cd examples/minimal && mkdir -p build && cd build && cmake .. && make && ls -l && cd ../../..
