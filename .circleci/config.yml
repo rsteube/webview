@@ -4,5 +4,6 @@ jobs:
     docker:
       - image: circleci/golang:1.12
     steps:
+      - run: apt-get update && apt-get install -y libwebkit2gtk-4.0-dev
       - checkout
       - run: go build
