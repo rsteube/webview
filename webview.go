@@ -18,7 +18,7 @@ package webview
 #cgo windows LDFLAGS: -lwininet -lole32 -lcomctl32 -loleaut32 -luuid -lgdi32
 
 
-#cgo darwin CFLAGS: -DWEBVIEW_COCOA=1 -x objective-c
+#cgo darwin CFLAGS: -DWEBVIEW_COCOA=1 -ObjC
 #cgo darwin LDFLAGS: -framework WebKit -framework Foundation
 
 #include <stdlib.h>
