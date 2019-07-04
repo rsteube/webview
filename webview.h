@@ -83,6 +83,7 @@ struct webview_priv
 #include <objc/objc-runtime.h>
 #include <CoreGraphics/CoreGraphics.h>
 #include <limits.h>
+#include <UIKit/UIKit.h>
 #include <Foundation/NSHTTPCookieStorage.h>
 #include <Foundation/NSHTTPCookie.h>
 #include <WebKit/WebKit.h>
