@@ -80,6 +80,7 @@ struct webview_priv
   RECT saved_rect;
 };
 #elif defined(WEBVIEW_COCOA)
+#include <objc/NSObject.h>
 #include <objc/objc-runtime.h>
 #include <CoreGraphics/CoreGraphics.h>
 #include <limits.h>
